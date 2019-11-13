@@ -5,10 +5,9 @@
 import sys
 from cpu import *
 
-print(sys.argv)
-
 if not sys.argv[1]:
     print("Error: no argument supplied")
+    sys.exit(0)
 
 else:
     instructions = [line.rstrip('\n') for line in open(sys.argv[1])]

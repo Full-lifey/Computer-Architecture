@@ -4,6 +4,46 @@ import sys
 HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
+MUL = 0b10100010
+
+
+# class Foo:
+
+#     def __init__(self):
+#         # Set up the branch table
+#         self.branchtable = {
+#             LDI: self.handle_LDI,
+#             PRN: self.handle_PRN,
+#             MUL: self.handle_MUL,
+#             HLT: self.handle_HLT,
+#         }
+
+#     def handle_LDI(self):
+#         operand_a = self.ram_read(self.pc+1)
+#         operand_b = self.ram_read(self.pc+2)
+
+#         self.reg[operand_a] = operand_b
+
+#     def handle_PRN(self):
+#         operand_a = self.ram_read(self.pc+1)
+#         print(self.reg[operand_a])
+
+#     def handle_MUL(self):
+#         operand_a = self.ram_read(self.pc+1)
+#         operand_b = self.ram_read(self.pc+2)
+
+#         self.alu('MUL', operand_a, operand_b)
+
+#     def handle_HLT(self):
+#         halted = True
+
+#     def run(self):
+#         # Example calls into the branch table
+#         halted = False
+
+#         while not halted:
+#             ir = self.ram_read(self.pc)
+#             self.branchtable[ir]
 
 
 class CPU:
@@ -49,6 +89,8 @@ class CPU:
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         # elif op == "SUB": etc
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -85,18 +127,24 @@ class CPU:
 
                 self.reg[operand_a] = operand_b
 
-                self.pc += 3
-
             elif ir == PRN:
                 operand_a = self.ram_read(self.pc+1)
                 print(self.reg[operand_a])
 
-                self.pc += 2
+            elif ir == MUL:
+                operand_a = self.ram_read(self.pc+1)
+                operand_b = self.ram_read(self.pc+2)
+
+                self.alu('MUL', operand_a, operand_b)
 
             elif ir == HLT:
                 halted = True
-                self.pc = 0
 
             else:
                 print(f"Unknown instruction at index {self.pc}")
                 sys.exit(1)
+
+            operand_count = ir >> 6
+            instruction_length = operand_count + 1
+            self.pc += instruction_length
+            # print(self.pc)
