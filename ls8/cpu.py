@@ -5,6 +5,8 @@ HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
 MUL = 0b10100010
+PUSH = 0b01000101
+POP = 0b01000110
 
 
 # class Foo:
@@ -18,10 +20,7 @@ MUL = 0b10100010
 #             HLT: self.handle_HLT,
 #         }
 
-#     def handle_LDI(self):
-#         operand_a = self.ram_read(self.pc+1)
-#         operand_b = self.ram_read(self.pc+2)
-
+#     def handle_LDI(self, operand_a, operand_b):
 #         self.reg[operand_a] = operand_b
 
 #     def handle_PRN(self):
@@ -51,7 +50,7 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        self.ram = [00000000] * 32
+        self.ram = [00000000] * 255
         self.reg = [0] * 8
         self.pc = 0
 
@@ -116,6 +115,8 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
+        SP = 7
+        self.reg[SP] = 0xF3
         halted = False
 
         while not halted:
@@ -136,6 +137,18 @@ class CPU:
                 operand_b = self.ram_read(self.pc+2)
 
                 self.alu('MUL', operand_a, operand_b)
+
+            elif ir == PUSH:
+                operand_a = self.ram_read(self.pc+1)
+                self.reg[SP] -= 1
+
+                self.ram_write(self.reg[SP], self.reg[operand_a])
+
+            elif ir == POP:
+                operand_a = self.ram_read(self.pc+1)
+                self.reg[operand_a] = self.ram_read(self.reg[SP])
+
+                self.reg[SP] += 1
 
             elif ir == HLT:
                 halted = True
