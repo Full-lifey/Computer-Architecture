@@ -12,6 +12,7 @@ RET = 0b00010001
 ADD = 0b10100000
 CMP = 0b10100111
 JMP = 0b01010110
+JEQ = 0b01010101
 
 
 class CPU:
@@ -39,6 +40,7 @@ class CPU:
         self.branchtable[ADD] = self.handle_add
         self.branchtable[CMP] = self.handle_cmp
         self.branchtable[JMP] = self.handle_jmp
+        self.branchtable[JEQ] = self.handle_jeq
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -77,18 +79,18 @@ class CPU:
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == "CMP":
-            print(f"reg_a: {reg_a} reg_b: {reg_b}")
+            # print(f"reg_a: {reg_a} reg_b: {reg_b}")
             result = reg_a - reg_b
 
             if result < 0:
                 self.FL = 0b00000100
-                print('less than', self.FL)
+                # print('less than', self.FL)
             elif result > 0:
                 self.FL = 0b00000010
-                print('greater than', self.FL)
+                # print('greater than', self.FL)
             else:
                 self.FL = 0b00000001
-                print('equal', self.FL)
+                # print('equal', self.FL)
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -177,7 +179,16 @@ class CPU:
 
     def handle_jmp(self):
         # jump to the address stored in the given register
-        self.pc = self.ram_read(self.pc+1)
+        print(self.reg[self.ram_read(self.pc+1)])
+        self.pc = self.reg[self.ram_read(self.pc+1)]
+
+    def handle_jeq(self):
+        operand_a = self.reg[self.ram_read(self.pc+1)]
+
+        if self.FL == 1:
+            self.pc = operand_a
+        else:
+            self.pc += 2
 
     def run(self):
         """Run the CPU."""
