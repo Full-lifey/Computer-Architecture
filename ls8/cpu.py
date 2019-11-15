@@ -10,6 +10,8 @@ POP = 0b01000110
 CALL = 0b01010000
 RET = 0b00010001
 ADD = 0b10100000
+CMP = 0b10100111
+JMP = 0b01010110
 
 
 class CPU:
@@ -36,6 +38,7 @@ class CPU:
         self.branchtable[RET] = self.handle_ret
         self.branchtable[ADD] = self.handle_add
         self.branchtable[CMP] = self.handle_cmp
+        self.branchtable[JMP] = self.handle_jmp
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -167,6 +170,10 @@ class CPU:
         operand_b = self.ram_read(self.pc+2)
 
         self.alu("CMP", operand_a, operand_b)
+
+    def handle_jmp(self):
+        # jump to the address stored in the given register
+        self.pc = self.ram_read(self.pc+1)
 
     def run(self):
         """Run the CPU."""
