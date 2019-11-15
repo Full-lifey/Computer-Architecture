@@ -23,6 +23,7 @@ class CPU:
         self.halted = False
         self.SP = 7
         self.reg[self.SP] = 0xF3
+        self.FL = 0b00000000
 
         self.branchtable = {}
         self.branchtable[HLT] = self.handle_hlt
@@ -34,6 +35,7 @@ class CPU:
         self.branchtable[CALL] = self.handle_call
         self.branchtable[RET] = self.handle_ret
         self.branchtable[ADD] = self.handle_add
+        self.branchtable[CMP] = self.handle_cmp
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -71,6 +73,15 @@ class CPU:
         # elif op == "SUB": etc
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "CMP":
+            result = reg_a - reg_b
+
+            if result < 0:
+                self.FL = 0b00000100
+            elif result > 0:
+                self.FL = 0b00000010
+            else:
+                self.FL = 0b00000001
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -150,6 +161,12 @@ class CPU:
         # print(self.reg[self.SP])
         self.pc = self.ram_read(self.reg[self.SP])
         self.reg[self.SP] += 1
+
+    def handle_cmp(self):
+        operand_a = self.ram_read(self.pc+1)
+        operand_b = self.ram_read(self.pc+2)
+
+        self.alu("CMP", operand_a, operand_b)
 
     def run(self):
         """Run the CPU."""
