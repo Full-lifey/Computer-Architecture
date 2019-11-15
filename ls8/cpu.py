@@ -17,6 +17,7 @@ JNE = 0b01010110
 AND = 0b10101000
 OR = 0b10101010
 XOR = 0b10101011
+NOT = 0b01101001
 
 
 class CPU:
@@ -49,6 +50,7 @@ class CPU:
         self.branchtable[AND] = self.handle_and
         self.branchtable[OR] = self.handle_or
         self.branchtable[XOR] = self.handle_xor
+        self.branchtable[NOT] = self.handle_not
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -87,24 +89,23 @@ class CPU:
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == "CMP":
-            # print(f"reg_a: {reg_a} reg_b: {reg_b}")
             result = reg_a - reg_b
 
             if result < 0:
                 self.FL = 0b00000100
-                # print('less than', self.FL)
             elif result > 0:
                 self.FL = 0b00000010
-                # print('greater than', self.FL)
             else:
                 self.FL = 0b00000001
-                # print('equal', self.FL)
         elif op == "AND":
             self.reg[reg_a] = self.reg[reg_a] & self.reg[reg_b]
         elif op == "OR":
             self.reg[reg_a] = self.reg[reg_a] | self.reg[reg_b]
         elif op == "XOR":
             self.reg[reg_a] = self.reg[reg_a] ^ self.reg[reg_b]
+        elif op == "NOT":
+            self.reg[reg_a] = ~ self.reg[reg_a]
+
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -232,6 +233,11 @@ class CPU:
         operand_b = self.ram_read(self.pc+2)
 
         self.alu("XOR", operand_a, operand_b)
+
+    def handle_not(self):
+        operand_a = self.ram_read(self.pc+1)
+
+        self.alu("NOT", operand_a)
 
     def run(self):
         """Run the CPU."""
