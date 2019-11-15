@@ -14,6 +14,7 @@ CMP = 0b10100111
 JMP = 0b01010100
 JEQ = 0b01010101
 JNE = 0b01010110
+AND = 0b10101000
 
 
 class CPU:
@@ -43,6 +44,7 @@ class CPU:
         self.branchtable[JMP] = self.handle_jmp
         self.branchtable[JEQ] = self.handle_jeq
         self.branchtable[JNE] = self.handle_jne
+        self.branchtable[AND] = self.handle_and
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -93,6 +95,8 @@ class CPU:
             else:
                 self.FL = 0b00000001
                 # print('equal', self.FL)
+        elif op == "AND":
+            self.reg[reg_a] = self.reg[reg_a] & self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -202,6 +206,12 @@ class CPU:
             self.pc = operand_a
         else:
             self.pc += 2
+
+    def handle_and(self):
+        operand_a = self.ram_read(self.pc+1)
+        operand_b = self.ram_read(self.pc+2)
+
+        self.alu("AND", operand_a, operand_b)
 
     def run(self):
         """Run the CPU."""
