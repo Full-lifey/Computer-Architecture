@@ -77,14 +77,18 @@ class CPU:
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == "CMP":
+            print(f"reg_a: {reg_a} reg_b: {reg_b}")
             result = reg_a - reg_b
 
             if result < 0:
                 self.FL = 0b00000100
+                print('less than', self.FL)
             elif result > 0:
                 self.FL = 0b00000010
+                print('greater than', self.FL)
             else:
                 self.FL = 0b00000001
+                print('equal', self.FL)
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -166,8 +170,8 @@ class CPU:
         self.reg[self.SP] += 1
 
     def handle_cmp(self):
-        operand_a = self.ram_read(self.pc+1)
-        operand_b = self.ram_read(self.pc+2)
+        operand_a = self.reg[self.ram_read(self.pc+1)]
+        operand_b = self.reg[self.ram_read(self.pc+2)]
 
         self.alu("CMP", operand_a, operand_b)
 
