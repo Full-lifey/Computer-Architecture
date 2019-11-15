@@ -13,6 +13,7 @@ ADD = 0b10100000
 CMP = 0b10100111
 JMP = 0b01010110
 JEQ = 0b01010101
+JNE = 0b01010110
 
 
 class CPU:
@@ -41,6 +42,7 @@ class CPU:
         self.branchtable[CMP] = self.handle_cmp
         self.branchtable[JMP] = self.handle_jmp
         self.branchtable[JEQ] = self.handle_jeq
+        self.branchtable[JNE] = self.handle_jne
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -186,6 +188,14 @@ class CPU:
         operand_a = self.reg[self.ram_read(self.pc+1)]
 
         if self.FL == 1:
+            self.pc = operand_a
+        else:
+            self.pc += 2
+
+    def handle_jne(self):
+        operand_a = self.reg[self.ram_read(self.pc+1)]
+
+        if self.FL == 0:
             self.pc = operand_a
         else:
             self.pc += 2
