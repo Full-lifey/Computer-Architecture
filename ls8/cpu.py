@@ -11,7 +11,7 @@ CALL = 0b01010000
 RET = 0b00010001
 ADD = 0b10100000
 CMP = 0b10100111
-JMP = 0b01010110
+JMP = 0b01010100
 JEQ = 0b01010101
 JNE = 0b01010110
 
@@ -181,7 +181,7 @@ class CPU:
 
     def handle_jmp(self):
         # jump to the address stored in the given register
-        print(self.reg[self.ram_read(self.pc+1)])
+        # print(self.reg[self.ram_read(self.pc+1)])
         self.pc = self.reg[self.ram_read(self.pc+1)]
 
     def handle_jeq(self):
@@ -195,7 +195,10 @@ class CPU:
     def handle_jne(self):
         operand_a = self.reg[self.ram_read(self.pc+1)]
 
-        if self.FL == 0:
+        # mask FL to see if JUST equal bit is 0
+        FL_mask = self.FL & 0b00000001
+
+        if FL_mask == 0:
             self.pc = operand_a
         else:
             self.pc += 2
