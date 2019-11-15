@@ -1,6 +1,7 @@
 """CPU functionality."""
 
 import sys
+
 HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
@@ -18,6 +19,8 @@ AND = 0b10101000
 OR = 0b10101010
 XOR = 0b10101011
 NOT = 0b01101001
+SHL = 0b10101100
+SHR = 0b10101101
 
 
 class CPU:
@@ -51,6 +54,8 @@ class CPU:
         self.branchtable[OR] = self.handle_or
         self.branchtable[XOR] = self.handle_xor
         self.branchtable[NOT] = self.handle_not
+        self.branchtable[SHL] = self.handle_shl
+        self.branchtable[SHR] = self.handle_shr
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -80,7 +85,7 @@ class CPU:
             self.ram[address] = number
             address += 1
 
-    def alu(self, op, reg_a, reg_b):
+    def alu(self, op, reg_a, reg_b=None):
         """ALU operations."""
 
         if op == "ADD":
@@ -105,6 +110,10 @@ class CPU:
             self.reg[reg_a] = self.reg[reg_a] ^ self.reg[reg_b]
         elif op == "NOT":
             self.reg[reg_a] = ~ self.reg[reg_a]
+        elif op == "SHL":
+            self.reg[reg_a] = self.reg[reg_a] << self.reg[reg_b]
+        elif op == "SHR":
+            self.reg[reg_a] = self.reg[reg_a] >> self.reg[reg_b]
 
         else:
             raise Exception("Unsupported ALU operation")
@@ -238,6 +247,18 @@ class CPU:
         operand_a = self.ram_read(self.pc+1)
 
         self.alu("NOT", operand_a)
+
+    def handle_shl(self):
+        operand_a = self.ram_read(self.pc+1)
+        operand_b = self.ram_read(self.pc+2)
+
+        self.alu("SHL", operand_a, operand_b)
+
+    def handle_shr(self):
+        operand_a = self.ram_read(self.pc+1)
+        operand_b = self.ram_read(self.pc+2)
+
+        self.alu("SHR", operand_a, operand_b)
 
     def run(self):
         """Run the CPU."""
