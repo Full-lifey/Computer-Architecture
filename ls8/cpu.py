@@ -21,6 +21,7 @@ XOR = 0b10101011
 NOT = 0b01101001
 SHL = 0b10101100
 SHR = 0b10101101
+MOD = 0b10100100
 
 
 class CPU:
@@ -56,6 +57,7 @@ class CPU:
         self.branchtable[NOT] = self.handle_not
         self.branchtable[SHL] = self.handle_shl
         self.branchtable[SHR] = self.handle_shr
+        self.branchtable[MOD] = self.handle_mod
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -114,6 +116,8 @@ class CPU:
             self.reg[reg_a] = self.reg[reg_a] << self.reg[reg_b]
         elif op == "SHR":
             self.reg[reg_a] = self.reg[reg_a] >> self.reg[reg_b]
+        elif op == "MOD":
+            self.reg[reg_a] /= self.reg[reg_b]
 
         else:
             raise Exception("Unsupported ALU operation")
@@ -259,6 +263,15 @@ class CPU:
         operand_b = self.ram_read(self.pc+2)
 
         self.alu("SHR", operand_a, operand_b)
+
+    def handle_mod(self):
+        operand_a = self.ram_read(self.pc+1)
+        operand_b = self.ram_read(self.pc+2)
+
+        if operand_b == 0:
+            self.halted = True
+        else:
+            self.alu("MOD", operand_a, operand_b)
 
     def run(self):
         """Run the CPU."""
