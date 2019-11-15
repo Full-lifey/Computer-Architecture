@@ -16,6 +16,7 @@ JEQ = 0b01010101
 JNE = 0b01010110
 AND = 0b10101000
 OR = 0b10101010
+XOR = 0b10101011
 
 
 class CPU:
@@ -47,6 +48,7 @@ class CPU:
         self.branchtable[JNE] = self.handle_jne
         self.branchtable[AND] = self.handle_and
         self.branchtable[OR] = self.handle_or
+        self.branchtable[XOR] = self.handle_xor
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -101,6 +103,8 @@ class CPU:
             self.reg[reg_a] = self.reg[reg_a] & self.reg[reg_b]
         elif op == "OR":
             self.reg[reg_a] = self.reg[reg_a] | self.reg[reg_b]
+        elif op == "XOR":
+            self.reg[reg_a] = self.reg[reg_a] ^ self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -222,6 +226,12 @@ class CPU:
         operand_b = self.ram_read(self.pc+2)
 
         self.alu("OR", operand_a, operand_b)
+
+    def handle_xor(self):
+        operand_a = self.ram_read(self.pc+1)
+        operand_b = self.ram_read(self.pc+2)
+
+        self.alu("XOR", operand_a, operand_b)
 
     def run(self):
         """Run the CPU."""
